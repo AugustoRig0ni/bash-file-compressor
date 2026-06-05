@@ -49,7 +49,7 @@ echo "==============================="
 	;;
 
 	*)
-	echo "operação invalida!"
+	echo "Operação Inválida!"
 	echo "Selecione descompactar ou compactar"
 	exit 1
 	;;
