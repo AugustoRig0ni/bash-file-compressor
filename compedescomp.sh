@@ -1,42 +1,40 @@
-#!/bin/bash
+#!/usr/bin/env bash
+
+set -euo pipefail
 
 echo "==============================="
 echo "  II Linux File Compressor II  "
 echo "==============================="
 
-	read -p "Entre com a operação desejada: 'compactar' ou 'descompactar' " operacao
-	case "$operacao" in
-		"compactar")
-		read -p "Nome do arquivo final: " arquivo_saida
-		arquivo_saida="${arquivo_saida}.tar.gz"
 
-		read -p "Arquivo para compactar: " arquivo
+compactar() {
+		local arquivo="$1"
+		local diretorio="$2"
+		local nome_final="$3"
+		local arquivo_saida="${nome_final}.tar.gz"
 
-	        if [ ! -f "$arquivo" ]; then
-                        echo "Arquivo não encontrado"
-                        exit 1
-                fi
-		read -p "Nome do diretório para salvar o arquivo compactado:  " diretorio
+	      if [ ! -f "$arquivo" ];then
+		echo "Arquivo não encontrado $arquivo"
+		exit 1
+	      fi
 
 	        mkdir -p "$diretorio"
-
 		tar -czf "$diretorio/$arquivo_saida" "$arquivo"
-
 		echo "Compactado com sucesso em $diretorio/$arquivo_saida"
-
 		echo
 		echo "Tamanho do arquivo compactado:"
-		du -h "$diretorio/$arquivo_saida"
-	;;
+		du -h "${diretorio%/}/$arquivo_saida"
+}
 
-	"descompactar")
-		read -p "Nome do arquivo a descompactar (.tar.gz): " arquivo
-		read -p "Diretório de destino: " diretorio
+descompactar() {
 
-	        if [ ! -f "$arquivo" ]; then
-                        echo "Arquivo não encontrado"
-                        exit 1
-                fi
+		local arquivo="$1"
+		local diretorio="$2"
+
+	       if [ ! -f "$arquivo" ]; then
+                  echo "Arquivo não encontrado: $arquivo"
+                  exit 1
+               fi
 
 	        mkdir -p "$diretorio"
 
@@ -46,11 +44,21 @@ echo "==============================="
 	        echo "Erro ao Descompactar o arquivo"
 		exit 1
 	     fi
-	;;
+	}
 
-	*)
-	echo "Operação Inválida!"
-	echo "Selecione descompactar ou compactar"
-	exit 1
-	;;
-esac 
+main() {
+	
+	if [ $# -eq 0 ]; then
+		echo "Uso:  ./compdescomp.sh compactar nome_do_arquivo pasta_destino/"
+		echo "         ./compedescomp.sh descompactar nome_do_arquivo.tar.gz pasta_destino/"
+		exit 1
+	fi
+
+	case "$1" in
+		"compactar")     compactar "$2" "${3%/}" "$4" ;;
+		"descompactar")  descompactar "$2" "$3" ;;
+		*) echo "Operação inválida"; exit 1 ;; 
+	   esac
+}
+
+main "$@"
